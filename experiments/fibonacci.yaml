@@ -1,0 +1,57 @@
+id: fibonacci
+title: "Python Fibonacci Benchmark"
+description: >
+  Benchmark naive recursion, memoization, and iterative Fibonacci in Python.
+
+mission: |
+  ## MISSION: FIBONACCI BENCHMARKING
+
+  Implement and benchmark three approaches to computing Fibonacci numbers in Python,
+  analyze the performance differences, and document conclusions.
+
+phases: |
+  ## PHASE 1: Implement and Benchmark
+
+  Write `/workspace/fibonacci_benchmark.py` that computes fib(35) using three approaches:
+
+  1. Naive recursion (no caching)
+  2. Memoization with `functools.lru_cache`
+  3. Iterative bottom-up
+
+  Print a comparison table: approach name, result, and elapsed time in seconds.
+  Run it with `run_command` and capture the output.
+
+  ## PHASE 2: Analyze Results
+
+  From the output, determine:
+  - Which approach is fastest and by what factor?
+  - Do all three return the same value?
+  - Is naive recursion viable beyond fib(35)?
+
+  Do not proceed until there is an ascii plot that shows the time scale of each approach to compare.
+
+  ## PHASE 3: Scale Up
+
+  Write `/workspace/fibonacci_benchmark_v2.py` that runs the two fast approaches for
+  fib(40) and fib(45). Confirm results match and document how time scales with input size.
+  Run it and capture output.
+
+  ## PHASE 4: Final Summary
+
+  Write `/workspace/fibonacci_results.md` with:
+  - Performance comparison table across all inputs tested.
+  - Explanation of why memoization and iteration outperform naive recursion.
+  - Recommendation for production use.
+
+  ## SUCCESS CRITERIA
+
+  - All three implementations produce correct, matching results.
+  - Both benchmark scripts execute without errors.
+  - Performance differences are measured and explained.
+  - Results documented in `/workspace/fibonacci_results.md`.
+
+agent_config:
+  max_iterations: 50
+  error_threshold: 10
+  run_until_limits: false
+  stop_on_complete: true

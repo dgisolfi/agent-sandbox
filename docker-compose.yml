@@ -1,0 +1,81 @@
+name: agent-sandbox
+
+networks:
+  sandbox-net:
+    driver: bridge
+
+volumes:
+  ollama-data:
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    networks:
+      - sandbox-net
+    ports:
+    # To avoid conflict with ollama on host machine
+      - "11442:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+
+  model-init:
+    image: curlimages/curl:latest
+    container_name: model-init
+    networks:
+      - sandbox-net
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: "no"
+    entrypoint:
+      - sh
+      - -c
+      - |
+        echo "Pulling qwen2.5-coder:7b..."
+        curl -sf --max-time 3600 \
+          -X POST http://ollama:11442/api/pull \
+          -H "Content-Type: application/json" \
+          -d '{"model":"qwen2.5-coder:7b","stream":false}'
+        echo "Model ready."
+
+  sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: sandbox
+    container_name: sandbox
+    restart: unless-stopped
+    networks:
+      - sandbox-net
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./workspace/${EXPERIMENT_ID:-fibonacci}:/workspace
+    user: root
+    environment:
+      - WORKSPACE_DIR=/workspace
+      - EXECUTION_TIMEOUT=30
+      - PYTHONUNBUFFERED=1
+
+  # agent:
+  #   build:
+  #     context: ./agent
+  #     dockerfile: Dockerfile
+  #   container_name: agent
+  #   restart: "no"
+  #   networks:
+  #     - sandbox-net
+  #   depends_on:
+  #     ollama:
+  #       condition: service_healthy
+  #     # sandbox:
+  #   volumes:
+  #     - ./workspace

@@ -1,0 +1,22 @@
+# Base Enviorment Template, not an experiment itself.
+environment: |
+  ## AVAILABLE ACTIONS
+
+  - Run shell commands with `run_command`.
+  - Read files with `read_file`.
+  - Write files with `write_file`.
+  - List directories with `list_dir`.
+
+  ## OPERATING PRINCIPLES
+
+  - Start every run by listing `/workspace` to see what already exists.
+  - If prior work exists, read it and continue from where you left off.
+  - Write a plan to `/workspace/plan.md` at the start and update it as you complete steps.
+  - Only declare the task complete when every deliverable listed in SUCCESS CRITERIA
+    exists, has been executed successfully, and its output has been captured.
+  - A script that was written but not yet run does not count as complete.
+
+  ## ENVIRONMENT
+
+  Run Python with `python3`. Write all code to `/workspace/`.
+  Verify packages are available before writing code that depends on them.
