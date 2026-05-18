@@ -27,3 +27,16 @@ class OllamaClient:
         )
         response.raise_for_status()
         return response.json().get("response", "")
+
+    def health_check(self) -> bool:
+        try:
+            response = requests.get(f"{self.base_url}/api/tags", timeout=10)
+            if response.status_code != 200:
+                return False
+            models = [m.get("name", "") for m in response.json().get("models", [])]
+            if not any(m == self.model or m.startswith(self.model + ":") for m in models):
+                print(f"[Agent] Model '{self.model}' is not pulled. Run: ollama pull {self.model}")
+                return False
+            return True
+        except requests.RequestException:
+            return False

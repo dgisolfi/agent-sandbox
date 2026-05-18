@@ -10,7 +10,6 @@ import os
 import time
 from pathlib import Path
 
-from filesystem import ensure_allowed
 from pydantic import BaseModel, Field
 
 
