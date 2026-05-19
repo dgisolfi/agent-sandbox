@@ -6,15 +6,15 @@ Daniel Nicolas Gisolfi <dgisolfi3@gatech.edu>
 """
 
 from fastapi import FastAPI
-from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
-
-from process import run_command
+from tools import (ALLOWED_ROOTS, CommandRequest, ErrorBody, FileListRequest,
+                   FileReadRequest, FileWriteRequest, Response, SandboxFsError,
+                   list_dir, read_file, run_command, write_file)
 
 app = FastAPI(
     title="Code Sandbox",
     description="Versioned API for sandbox command execution and file IO.",
-    version="1.0.0",
+    version="3.0.0",
 )
 
 app.add_middleware(
@@ -23,26 +23,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-class ErrorBody(BaseModel):
-    type: str
-    message: str
-    details: dict = Field(default_factory=dict)
-
-
-class Response(BaseModel):
-    ok: bool
-    data: dict | None = None
-    error: ErrorBody | None = None
-
-
-class CommandRequest(BaseModel):
-    command: str
-    cwd: str = "/workspace"
-    stdin: str | None = None
-    timeout: int = Field(default=30, ge=1, le=3600)
-    env: dict = Field(default_factory=dict)
 
 
 def ok(data: dict) -> Response:
@@ -58,12 +38,49 @@ def fail(error_type: str, message: str, details: dict = None) -> Response:
 
 
 def handle_error(exc: Exception) -> Response:
+    if isinstance(exc, SandboxFsError):
+        return fail(exc.error_type, exc.message, exc.details)
     return fail("internal_error", str(exc))
+
+
+@app.get("/health")
+async def health():
+    return {
+        "status": "ok",
+        "version": "3.0.0",
+        "allowed_roots": [str(root) for root in ALLOWED_ROOTS],
+    }
 
 
 @app.post("/v1/command", response_model=Response)
 async def command(req: CommandRequest):
     try:
-        return ok(await run_command(req.command, req.cwd, req.stdin, req.env))
+        return ok(
+            await run_command(req.command, req.cwd, req.stdin, req.timeout, req.env)
+        )
+    except Exception as exc:
+        return handle_error(exc)
+
+
+@app.post("/v1/files/read", response_model=Response)
+async def files_read(req: FileReadRequest):
+    try:
+        return ok(read_file(req.path))
+    except Exception as exc:
+        return handle_error(exc)
+
+
+@app.post("/v1/files/write", response_model=Response)
+async def files_write(req: FileWriteRequest):
+    try:
+        return ok(write_file(req.path, req.content, req.mode, req.create_parents))
+    except Exception as exc:
+        return handle_error(exc)
+
+
+@app.post("/v1/files/list", response_model=Response)
+async def files_list(req: FileListRequest):
+    try:
+        return ok(list_dir(req.path, req.recursive, req.max_entries))
     except Exception as exc:
         return handle_error(exc)

@@ -2,6 +2,18 @@ FROM python:3.12-slim AS base
 ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
+FROM base AS agent
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+COPY agent/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY agent/ ./agent/
+RUN mkdir -p /logs
+ENV PYTHONPATH=/app
+ENTRYPOINT ["python", "-u", "-m", "agent"]
+CMD ["list"]
+
 FROM base AS sandbox
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \

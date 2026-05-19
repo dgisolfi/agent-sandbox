@@ -1,0 +1,75 @@
+id: ffn_classifier
+title: "Feed-Forward Neural Network from Scratch, Full ML Evaluation"
+description: >
+  Build a production-quality feed-forward neural network using only NumPy, train and
+  evaluate it across three sklearn datasets, and produce a full ML evaluation suite.
+
+mission: |
+  ## MISSION: BUILD AND EVALUATE A FEED-FORWARD NEURAL NETWORK
+
+  Implement a fully-connected neural network from scratch using only NumPy, no PyTorch,
+  TensorFlow, or sklearn neural net classes. Train and evaluate it across three sklearn
+  built-in datasets. Produce a complete ML evaluation report with metrics, learning curves,
+  and conclusions.
+
+  This runs on CPU inside a Docker container. All datasets are small enough to train
+  in well under 5 minutes total. Only NumPy and scikit-learn are available.
+
+phases: |
+  ## PHASE 1: Core FFN Implementation
+
+  Implement a fully-connected neural network class using NumPy only. It must support:
+  - Configurable layer sizes
+  - ReLU activations with proper backpropagation
+  - Softmax output with cross-entropy loss
+  - Mini-batch SGD training
+
+  Write unit tests that verify output shapes, probability validity, loss convergence,
+  and gradient correctness via numerical approximation. All tests must pass before proceeding.
+
+  ## PHASE 2: Evaluation Utilities
+
+  Implement evaluation utilities from scratch using only NumPy:
+  - Confusion matrix
+  - Per-class precision, recall, F1 with macro and weighted averages
+  - A plain-text ASCII learning curve (no matplotlib)
+
+  ## PHASE 3: Data Pipeline
+
+  Build a data loading pipeline for the three sklearn datasets: iris, wine, and breast_cancer.
+  Each dataset should use a stratified 80/20 train/test split with features standardized
+  using train-set statistics only.
+
+  ## PHASE 4: Training and Evaluation
+
+  Train at least two different network architectures on each dataset and select the best
+  by test accuracy. For the best architecture on each dataset, report:
+  - Train and test accuracy
+  - Per-class precision, recall, F1
+  - Confusion matrix
+  - Comparison against a majority-class baseline
+
+  Save ASCII learning curves for each run.
+
+  ## PHASE 5: Final Report
+
+  Produce a written report covering:
+  - A summary table of results across all datasets
+  - Per-dataset findings: best architecture, test accuracy, macro F1, confusion matrix,
+    and improvement over baseline
+  - Learning curve observations
+  - Key findings and what you would try next
+
+  ## SUCCESS CRITERIA
+
+  - FFN implementation with all unit tests passing, including gradient check
+  - Evaluation utilities working from scratch (no sklearn metrics)
+  - All three datasets trained and evaluated cleanly
+  - ASCII learning curves saved for each run
+  - Final results report written with all sections filled in
+
+agent_config:
+  max_iterations: 350
+  error_threshold: 50
+  run_until_limits: false
+  stop_on_complete: true

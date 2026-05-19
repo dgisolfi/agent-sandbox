@@ -1,0 +1,34 @@
+# GPU override, route LLM calls to Ollama running on the Windows host (DirectML or CUDA). 
+# Make sure to update the OLLAMA_MODEL bleow with the name of the model in ollama
+
+# pull a model and then enable ollama:
+#     ollama pull qwen2.5-coder:14b  
+#     ollama serve
+
+
+services:
+  # This Stub satisfies the depends_on health check as the real Ollama is on the host.
+  ollama:
+    image: busybox:latest
+    command: sh -c "sleep infinity"
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "true"]
+      interval: 5s
+      timeout: 3s
+      retries: 1
+      start_period: 1s
+
+  # model already pulled on the host.
+  model-init:
+    image: busybox:latest
+    command: sh -c "echo 'Using host Ollama (DirectML)'"
+
+  agent:
+    environment:
+      - OLLAMA_URL=http://host.docker.internal:11434
+      # - OLLAMA_MODEL=qwen2.5-coder:14b
+      - OLLAMA_MODEL=qwen3:14b
+      # - OLLAMA_MODEL=freehuntx/qwen3-coder:14b
+      # - OLLAMA_MODEL=qwen3-coder:30b
+      

@@ -51,7 +51,7 @@ phases: |
   - Results documented in `/workspace/fibonacci_results.md`.
 
 agent_config:
-  max_iterations: 50
-  error_threshold: 10
+  max_iterations: 150
+  error_threshold: 15
   run_until_limits: false
   stop_on_complete: true
