@@ -15,7 +15,6 @@ services:
     networks:
       - sandbox-net
     ports:
-    # To avoid conflict with ollama on host machine
       - "11434:11434"
     volumes:
       - ollama-data:/root/.ollama

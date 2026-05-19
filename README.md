@@ -14,7 +14,7 @@ docker compose run --rm agent list
 ### CPU Only
 
 ```
-docker-compose run --rm agent start fibonacci
+EXPERIMENT_ID=fibonacci docker-compose run --rm agent start fibonacci
 ```
 
 Example Output
@@ -50,5 +50,5 @@ Container agent-sandbox-agent-run-30664b8b4498 Created
 
 
 ```
-docker compose -f docker-compose.yml -f docker-compose.gpu.yml run --rm agent start fibonacci
+EXPERIMENT_ID=fibonacci docker compose -f docker-compose.yml -f docker-compose.gpu.yml run --rm agent start fibonacci
 ```

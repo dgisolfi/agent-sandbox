@@ -1,0 +1,61 @@
+id: py_concurrency
+title: "Python Concurrency Model Benchmark"
+description: >
+  Compare threading, multiprocessing, and asyncio on CPU-bound and I/O-bound
+  workloads to reveal the practical impact of the GIL.
+
+mission: |
+  ## MISSION: PYTHON CONCURRENCY BENCHMARK
+
+  Measure the real-world performance of Python's three concurrency models —
+  threading, multiprocessing, and asyncio, across workloads where each is
+  expected to win or lose. Explain why the results look the way they do and
+  produce actionable guidance for choosing between them.
+
+phases: |
+  ## PHASE 1: CPU-Bound Workload
+
+  Pick a pure-CPU task that takes a measurable but not excessive amount of time
+  (a few seconds at most). Run it sequentially and then distribute it across
+  multiple workers using threads, processes, and async. Record wall-clock time
+  for each approach.
+
+  ## PHASE 2: I/O-Bound Workload
+
+  Design a workload where the bottleneck is waiting rather than computing —
+  without making real network calls. Run it at a concurrency level where the
+  difference between models becomes apparent. Record wall-clock time for each
+  approach.
+
+  ## PHASE 3: Analyze GIL Impact
+
+  From the two sets of results, explain which models benefited from parallelism
+  on the CPU task, which did not, and why. Do the same for the I/O task. Identify
+  the crossover point where each model starts to win or lose.
+
+  ## PHASE 4: Scaling Test
+
+  For the model that performed best on each workload type, vary the number of
+  workers or tasks and measure how throughput scales. Find the point of
+  diminishing returns.
+
+  ## PHASE 5: Final Report
+
+  Write `/workspace/concurrency_results.md` with:
+  - Performance comparison tables for both workload types across all models tested.
+  - Explanation of the GIL and its observed effect on the results.
+  - Scaling curves with interpretation.
+  - A clear decision guide: given a workload, which model to reach for and why.
+
+  ## SUCCESS CRITERIA
+
+  - All three concurrency models are benchmarked on both workload types.
+  - Results are reproducible (fixed seeds or deterministic I/O simulation).
+  - GIL impact is explained and supported by measured data.
+  - Results documented in `/workspace/concurrency_results.md`.
+
+agent_config:
+  max_iterations: 100
+  error_threshold: 15
+  run_until_limits: false
+  stop_on_complete: true

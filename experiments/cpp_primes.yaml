@@ -1,0 +1,57 @@
+id: cpp_primes
+title: "C++ Prime Sieve vs Trial Division"
+description: >
+  Compare Sieve of Eratosthenes vs trial division for finding primes in C++.
+
+mission: |
+  ## MISSION: C++ PRIME FINDING BENCHMARK
+
+  Implement and benchmark two prime-finding algorithms in C++, optimize the faster
+  one, and document how performance scales with input size.
+
+  ## ENVIRONMENT
+
+  Write all code to `/workspace/`. Compile and run in a single `run_command`, for example:
+
+  ```
+  g++ -O2 -std=c++17 -o /workspace/prime_sieve /workspace/prime_sieve.cpp && /workspace/prime_sieve
+  ```
+
+phases: |
+  ## PHASE 1: Initial Implementation
+
+  Find all primes up to 10,000,000 using two distinct algorithms and measure how
+  long each one takes. Confirm both agree on the answer.
+
+  ## PHASE 2: Analyze Results
+
+  Determine which algorithm is faster and by how much. Assess whether the slower
+  algorithm is practical at this scale.
+
+  ## PHASE 3: Optimization
+
+  Reduce memory and runtime for the faster algorithm. If the slower algorithm was
+  impractical at 10M, cap its benchmark range to where it remains feasible.
+
+  ## PHASE 4: Scaling Test
+
+  Push the optimized implementation to larger inputs and characterize how time and
+  memory grow with input size.
+
+  ## PHASE 5: Final Summary
+
+  Write `/workspace/primes_results.md` with a performance comparison table, time
+  complexity analysis (theoretical vs measured), memory usage, and recommendations
+  by use case.
+
+  ## SUCCESS CRITERIA
+
+  - Both algorithms produce the same prime count for matching input ranges.
+  - All source files compile and execute without errors.
+  - Results documented in `/workspace/primes_results.md`.
+
+agent_config:
+  max_iterations: 75
+  error_threshold: 10
+  run_until_limits: false
+  stop_on_complete: true

@@ -6,6 +6,7 @@ Author(s)
 Daniel Nicolas Gisolfi <dgisolfi3@gatech.edu>
 """
 
+import logging
 import os
 import sys
 from pathlib import Path
@@ -13,11 +14,10 @@ from pathlib import Path
 import click
 import yaml
 
-from agent.core.loop import AgentLoop
-from agent.core.ollama import OllamaClient
-from agent.core.utils import RunLogger, RunState
-from agent.tools.registry import ToolRegistry
+from agent.agent import Agent
+from agent.ollama import OllamaClient
 from agent.tools.sandbox import SandboxClient
+from agent.utils import RunLogger
 
 
 def _load_experiment(experiment_id: str, experiments_dir: str) -> dict:
@@ -64,12 +64,21 @@ def _task_from_experiment(experiment_id: str, experiments_dir: str):
 
 def _build_loop(run_id=None):
     sandbox = SandboxClient(os.getenv("SANDBOX_URL", "http://sandbox:8000"))
+    model_name = os.getenv("OLLAMA_MODEL", "qwen2.5-coder:7b")
+    ollama_url = os.getenv("OLLAMA_URL", "http://ollama:11434")
     llm = OllamaClient(
-        os.getenv("OLLAMA_URL", "http://ollama:11434"),
-        os.getenv("OLLAMA_MODEL", "qwen2.5-coder:7b"),
+        ollama_url,
+        model_name,
     )
-    logger = RunLogger(os.getenv("RUNS_DIR", "/logs/runs"), run_id)
-    return AgentLoop(llm, ToolRegistry(sandbox), logger), sandbox, llm, logger
+    run_logger = RunLogger(os.getenv("RUNS_DIR", "/logs/runs"), run_id)
+    runner = Agent(
+        sandbox=sandbox,
+        logger=run_logger,
+        model_name=model_name,
+        base_url=ollama_url,
+        model_adapter=os.getenv("AGENT_MODEL_ADAPTER", "wrapped"),
+    )
+    return runner, sandbox, llm, run_logger
 
 
 def _run_task(
@@ -92,15 +101,13 @@ def _run_task(
         click.echo("[Agent] Ollama service is not responding", err=True)
         return 1
 
-    state = RunState(
+    final_state = loop.run(
         task=task,
         max_iterations=max_iterations,
         error_threshold=error_threshold,
         stop_on_complete=stop_on_complete,
         run_until_limits=run_until_limits,
-        current_goal="Understand the task and choose the first concrete development step.",
     )
-    final_state = loop.run(state)
 
     click.echo("\n" + "=" * 70)
     click.echo("AGENT EXECUTION REPORT")
@@ -111,6 +118,8 @@ def _run_task(
     click.echo(f"Run log:    {logger.run_dir}")
     if final_state.current_goal:
         click.echo(f"Final goal: {final_state.current_goal}")
+    if final_state.final_output:
+        click.echo(f"Output:     {final_state.final_output[:500]}")
     click.echo("=" * 70)
 
     return 0 if final_state.status == "complete" else 1
@@ -119,7 +128,11 @@ def _run_task(
 @click.group()
 @click.version_option("2.0.0", prog_name="agent")
 def cli():
-    pass
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        datefmt="%H:%M:%S",
+    )
 
 
 @cli.command()
@@ -161,7 +174,7 @@ def run(task, max_iterations, error_threshold, run_id, run_until_limits):
 @click.option(
     "--experiments-dir",
     envvar="EXPERIMENTS_DIR",
-    default="../experiments",
+    default="./experiments",
     show_default=True,
 )
 @click.option("--run-id", default=None)
@@ -196,7 +209,7 @@ def start(experiment_id, max_iterations, error_threshold, experiments_dir, run_i
 @click.option(
     "--experiments-dir",
     envvar="EXPERIMENTS_DIR",
-    default="../experiments",
+    default="./experiments",
     show_default=True,
 )
 def list_experiments(experiments_dir):
