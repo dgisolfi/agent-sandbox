@@ -16,8 +16,8 @@ services:
       - sandbox-net
     ports:
     # To avoid conflict with ollama on host machine
-      - "11442:11434"
-     volumes:
+      - "11434:11434"
+    volumes:
       - ollama-data:/root/.ollama
     environment:
       - OLLAMA_NUM_PARALLEL=1
@@ -44,14 +44,13 @@ services:
       - |
         echo "Pulling qwen2.5-coder:7b..."
         curl -sf --max-time 3600 \
-          -X POST http://ollama:11442/api/pull \
+          -X POST http://ollama:11434/api/pull \
           -H "Content-Type: application/json" \
           -d '{"model":"qwen2.5-coder:7b","stream":false}'
         echo "Model ready."
 
   sandbox:
     build:
-      context: ./sandbox
       dockerfile: Dockerfile
     container_name: sandbox
     restart: unless-stopped
@@ -76,8 +75,8 @@ services:
 
   agent:
     build:
-      context: ./agent
       dockerfile: Dockerfile
+      target: agent
     container_name: agent
     restart: "no"
     networks:
@@ -94,7 +93,7 @@ services:
       - ./workspace/${EXPERIMENT_ID:-fibonacci}:/workspace
       - ./agent/logs:/logs
     environment:
-      - OLLAMA_URL=http://ollama:11442
+      - OLLAMA_URL=http://ollama:11434
       - OLLAMA_MODEL=qwen2.5-coder:7b
       - SANDBOX_URL=http://sandbox:8000
       - EXPERIMENTS_DIR=/experiments
@@ -102,7 +101,3 @@ services:
       - LOG_LEVEL=INFO
       - MAX_ITERATIONS=100
       - ERROR_THRESHOLD=5
-    stdin_open: true
-    tty: true
-    entrypoint: ["python", "app.py"]
-    command: ["list"]

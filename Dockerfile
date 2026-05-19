@@ -8,10 +8,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 COPY agent/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY agent/ .
+COPY agent/ ./agent/
 RUN mkdir -p /logs
 ENV PYTHONPATH=/app
-ENTRYPOINT ["python", "app.py"]
+ENTRYPOINT ["python", "-u", "-m", "agent"]
 CMD ["list"]
 
 FROM base AS sandbox

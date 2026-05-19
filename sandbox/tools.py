@@ -34,9 +34,11 @@ class SandboxFsError(Exception):
         self.message = message
         self.details = details or {}
 
+
 ###################
 # Pydantic models #
 ###################
+
 
 class ErrorBody(BaseModel):
     type: str
@@ -113,9 +115,11 @@ def _is_relative_to(path: Path, root: Path) -> bool:
     except ValueError:
         return False
 
+
 #################################
 # Tools for sandbox interaction #
 #################################
+
 
 def read_file(path: str) -> dict:
     resolved = ensure_allowed(path, must_exist=True)
